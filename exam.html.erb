@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <h1>Web技術入門　課題ページ</h1>
+    <% require 'pg' %>
+    <% connection = PG::connect(dbname: "goya") %>
+    <% connection.internal_encoding = "UTF-8" %>
+    <% result = connection.exec("select length, weight, quality, date, give_for from crops where give_for != '自家消費';") %>
+    <% data = [] %>
+    <% result.each do |record| %>
+      <%  data << "長さ：#{record["length"]}cm 重さ：#{record["weight"]}kg 品質：#{record["quality"]} 売った日：#{record["date"]} 売った相手：#{record["give_for"]}<br>" %>
+    <% end %>
+    <form action="notself.cgi" method="POST">
+       下記のボタンを押すと、譲渡先が自家消費ではないゴーヤの情報ページに飛びます。<br><br>
+       <!-- valueには、送りたいデータを代入する -->
+       <!-- name="notself"を、情報の目印とする -->
+      <input type="text" name="notself" value="<%= data.join(' ') %>">
+      <input type="submit" name="送信" >
+    </form>
+
+      <!-- 品質が悪いゴーヤ -->
+    <% badresult = connection.exec("select length, weight, quality, date, give_for from crops where quality = 'f';") %>
+    <% data = [] %>
+    <% badresult.each do |record| %>
+      <%  data << "長さ：#{record["length"]}cm 重さ：#{record["weight"]}kg 品質：#{record["quality"]} 売った日：#{record["date"]} 売った相手：#{record["give_for"]}<br>" %>
+    <% end %>
+    <form action="false.cgi" method="POST">
+       下記のボタンを押すと、品質が悪いゴーヤの情報ページに飛びます。<br><br>
+       <!-- valueには、送りたいデータを代入する -->
+       <!-- name="false"を、情報の目印とする -->
+      <input type="text" name="false" value="<%= data.join(' ') %>">
+      <input type="submit" name="送信" >
+    </form>
+
+  </body>
+</html>
